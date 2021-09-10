@@ -1,13 +1,18 @@
-name: "Hello World"
-description: "Greet someone and record the time"
+name: "PR Notifier"
+description: "Notify reviewers and/or authors in Slack when certain events happen in a PR"
 inputs:
-  who-to-greet: # id of input
-    description: "Who to greet"
+  slack_bot_token:
+    description: "The ID of the slack bot associated with this action"
     required: true
-    default: "World"
-outputs:
-  time: # id of output
-    description: "The time we greeted you"
+  slack_channel_id:
+    description: "The ID of the slack channel that you want the bot to post messages in"
+    required: true
+  github_token:
+    description: "Personal access token with repository rights."
+  slack_users:
+    description: "This is JSON stringified array of the users you would like to be able to notify via slack when they are requested to review a PR. The format should be [{ github_username: string, slack_id: string }]"
+    required: true
+    default: "[]"
 runs:
   using: "node12"
   main: "index.js"
