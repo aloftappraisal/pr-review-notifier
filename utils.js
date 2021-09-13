@@ -10,9 +10,6 @@ const octokit = github.getOctokit(githubToken);
 
 const getSlackThreadID = async () => {
   const { repository, pull_request } = github.context.payload;
-  if (!pull_request) {
-    return false;
-  }
   const comments = await octokit.rest.issues.listComments({
     owner: repository.owner.login,
     repo: repository.name,
@@ -72,6 +69,9 @@ module.exports = {
   handlePush: async () => {
     console.log("handling push");
     const { pull_request } = github.context.payload;
+    if (!pull_request) {
+      return;
+    }
     let slackThreadID = await getSlackThreadID();
     if (!slackThreadID) {
       slackThreadID = await createSlackThread();
@@ -107,6 +107,9 @@ module.exports = {
       slackThreadID = await createSlackThread();
     }
     const { pull_request, review } = github.context.payload;
+    if (!pull_request) {
+      return;
+    }
     const author = githubToSlackName(review.user.login);
     const reviewer = githubToSlackName(pull_request.user.login);
 
