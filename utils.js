@@ -38,7 +38,6 @@ module.exports = {
     console.log("handling push");
     const { pull_request } = github.context.payload;
     if (!pull_request) {
-      console.log("no pull request");
       return;
     }
     const reviewers = pull_request.requested_reviewers.map((reviewer) =>
@@ -46,7 +45,6 @@ module.exports = {
     );
     const PR = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
     if (reviewers.length === 0) {
-      console.log("no reviewers");
       return;
     }
 

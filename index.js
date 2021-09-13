@@ -7,13 +7,16 @@ const { handleOpen, handlePush, handleReview } = require("./utils");
     const { eventName, payload } = github.context;
     switch (eventName) {
       case "pull_request": {
-        if (payload.action === "opened") {
-          await handleOpen();
+        switch (payload.action) {
+          case "opened": {
+            await handleOpen();
+            break;
+          }
+          case "edited": {
+            await handlePush();
+            break;
+          }
         }
-        break;
-      }
-      case "push": {
-        await handlePush();
         break;
       }
       case "pull_request_review": {
