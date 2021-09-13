@@ -1,10 +1,12 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const githubToken = core.getInput("github_token");
-const octokit = github.getOctokit(githubToken);
 
 const { WebClient } = require("@slack/web-api");
 const slackClient = new WebClient(core.getInput("slack_bot_token"));
+
+const channelId = core.getInput("slack_channel_id");
+const githubToken = core.getInput("github_token");
+const octokit = github.getOctokit(githubToken);
 
 export const createSlackThread = async () => {
   console.log("creating slack thread");
@@ -17,8 +19,6 @@ export const createSlackThread = async () => {
   }
   const author = githubToSlackName(sender.login);
   const PR = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
-
-  const channelId = core.getInput("slack_channel_id");
   const slackMessage = await slackClient.chat.postMessage({
     channel: channelId,
     text: `${reviewers.join(",")}, ${author} requested your review on ${PR}`,
@@ -41,7 +41,6 @@ export const handlePush = async () => {
   if (!slackThreadID) {
     slackThreadID = await createSlackThread();
   }
-  const channelId = core.getInput("slack_channel_id");
   const reviewers = pull_request.requested_reviewers.map((reviewer) =>
     githubToSlackName(reviewer.login)
   );
@@ -54,6 +53,58 @@ export const handlePush = async () => {
     channel: channelId,
     thread_ts: slackThreadID,
     text: `Attention ${reviewers.join(", ")}, updates were made to ${PR}`,
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text,
+        },
+      },
+    ],
+  });
+};
+
+export const handleReview = async () => {
+  console.log("handling review");
+  let slackThreadID = await getSlackThreadID();
+  if (!slackThreadID) {
+    slackThreadID = await createSlackThread();
+  }
+  const { pull_request, review } = github.context.payload;
+  const author = githubToSlackName(review.user.login);
+  const reviewer = githubToSlackName(pull_request.user.login);
+
+  if (!reviewer) {
+    throw Error(
+      `Could not map ${review.user.login} to the users you provided in action.yml`
+    );
+  }
+  if (!author) {
+    throw Error(
+      `Could not map ${pull_request.user.login} to the users you provided in action.yml`
+    );
+  }
+
+  let baseText;
+  switch (review.state) {
+    case "changes_requested":
+      baseText = `requested changes on your PR`;
+      break;
+    case "commented":
+      baseText = "left comments on your PR";
+      break;
+    case "approved":
+      baseText = "approved your PR. Yay!";
+      break;
+    default:
+      throw Error("unknown review state");
+  }
+
+  await slackWebClient.chat.postMessage({
+    channel: channelId,
+    thread_ts: slackThreadID,
+    text: `${author}, ${reviewer} ${baseText}`,
     blocks: [
       {
         type: "section",

@@ -21,7 +21,7 @@ const handleReview = async () => {
         await handleReview();
       }
       default: {
-        console.log(`Event: ${eventName} not implemented, continuing build.`);
+        console.log(`Event: ${eventName} not implemented, continuing.`);
       }
     }
   } catch (error) {
