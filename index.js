@@ -1,4 +1,5 @@
 const github = require("@actions/github");
+const core = require("@actions/core");
 const { createSlackThread, handlePush, handleReview } = require("./utils");
 
 (async () => {

@@ -106,15 +106,6 @@ module.exports = {
       channel: channelId,
       thread_ts: slackThreadID,
       text: `${author}, ${reviewer} ${baseText}`,
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text,
-          },
-        },
-      ],
     });
   },
 
