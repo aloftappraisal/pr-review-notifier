@@ -23,10 +23,10 @@ Upon various actions taken on a PR, this action will tag the author and reviewer
 
 ## Example usage
 
-uses: jonnyliu15/pr-reviews-action
-with:
-         `bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
-          channel-id: 'C01K5D346EL'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          slack-users: '[
-            { "github_username": "jonnyliu15", "slack_id": "U022GSCCH1A" }]',`
+uses: jonnyliu15/pr-reviews-action \n
+with:\n
+         `bot-token: ${{ secrets.SLACK_BOT_TOKEN }}\n
+          channel-id: 'C01K5D346EL'\n
+          github-token: ${{ secrets.GITHUB_TOKEN }}\n
+          slack-users: '[\n
+            { "github_username": "jonnyliu15", "slack_id": "U022GSCCH1A" }]',`\n
