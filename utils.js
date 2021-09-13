@@ -6,25 +6,6 @@ const slackClient = new WebClient(core.getInput("slack_bot_token"));
 
 const channelId = core.getInput("slack_channel_id");
 const githubToken = core.getInput("github_token");
-const octokit = github.getOctokit(githubToken);
-
-const getSlackThreadID = async () => {
-  const { repository, pull_request } = github.context.payload;
-  const comments = await octokit.rest.issues.listComments({
-    owner: repository.owner.login,
-    repo: repository.name,
-    issue_number: pull_request.number,
-  });
-
-  const myComment = comments.find((comment) => {
-    comment.body.includes("SLACK_MESSAGE_ID");
-  });
-  if (!myComment) {
-    return false;
-  }
-
-  return myComment.split(": ")[1];
-};
 
 const githubToSlackName = (github) => {
   const users = JSON.parse(core.getInput("slack_users"));
@@ -33,37 +14,25 @@ const githubToSlackName = (github) => {
   }>`;
 };
 
-const createSlackThread = async () => {
-  const { pull_request, sender } = github.context.payload;
-  const reviewers = pull_request.requested_reviewers.map((reviewer) =>
-    githubToSlackName(reviewer.login)
-  );
-  if (reviewers.length === 0) {
-    return;
-  }
-  const author = githubToSlackName(sender.login);
-  const PR = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
-  const slackMessage = await slackClient.chat.postMessage({
-    channel: channelId,
-    text: `${reviewers.join(",")}, ${author} requested your review on ${PR}`,
-  });
-  if (!slackMessage.ok) {
-    throw new Error("Failed to send slack message");
-  }
-
-  await octokit.rest.issues.createComment({
-    owner: repository.owner.login,
-    repo: repository.name,
-    issue_number: pull_request.number,
-    body: `SLACK_MESSAGE_ID: ${prSlackMsg.ts}`,
-  });
-  return prSlackMsg.ts;
-};
-
 module.exports = {
   handleOpen: async () => {
     console.log("handling open");
-    await createSlackThread();
+    const { pull_request, sender } = github.context.payload;
+    const reviewers = pull_request.requested_reviewers.map((reviewer) =>
+      githubToSlackName(reviewer.login)
+    );
+    if (reviewers.length === 0) {
+      return;
+    }
+    const author = githubToSlackName(sender.login);
+    const PR = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
+    const slackMessage = await slackClient.chat.postMessage({
+      channel: channelId,
+      text: `${reviewers.join(",")}, ${author} requested your review on ${PR}`,
+    });
+    if (!slackMessage.ok) {
+      throw new Error("Failed to send slack message");
+    }
   },
 
   handlePush: async () => {
@@ -71,10 +40,6 @@ module.exports = {
     const { pull_request } = github.context.payload;
     if (!pull_request) {
       return;
-    }
-    let slackThreadID = await getSlackThreadID();
-    if (!slackThreadID) {
-      slackThreadID = await createSlackThread();
     }
     const reviewers = pull_request.requested_reviewers.map((reviewer) =>
       githubToSlackName(reviewer.login)
@@ -86,7 +51,6 @@ module.exports = {
 
     await slackWebClient.chat.postMessage({
       channel: channelId,
-      thread_ts: slackThreadID,
       text: `Attention ${reviewers.join(", ")}, updates were made to ${PR}`,
       blocks: [
         {
@@ -102,10 +66,6 @@ module.exports = {
 
   handleReview: async () => {
     console.log("handling review");
-    let slackThreadID = await getSlackThreadID();
-    if (!slackThreadID) {
-      slackThreadID = await createSlackThread();
-    }
     const { pull_request, review } = github.context.payload;
     if (!pull_request) {
       return;
@@ -127,10 +87,10 @@ module.exports = {
     let baseText;
     switch (review.state) {
       case "changes_requested":
-        baseText = `requested changes on your PR`;
+        baseText = `requested changes on your PR.`;
         break;
       case "commented":
-        baseText = "left comments on your PR";
+        baseText = "neither approved nor denied your PR, but merely commented.";
         break;
       case "approved":
         baseText = "approved your PR. Yay!";
@@ -141,7 +101,6 @@ module.exports = {
 
     await slackWebClient.chat.postMessage({
       channel: channelId,
-      thread_ts: slackThreadID,
       text: `${author}, ${reviewer} ${baseText}`,
     });
   },
