@@ -1,10 +1,6 @@
 const github = require("@actions/github");
 const { createSlackThread, handlePush, handleReview } = require("./utils");
 
-const handleReview = async () => {
-  console.log("handling review");
-};
-
 (async () => {
   try {
     const { eventName, payload } = github.context;
