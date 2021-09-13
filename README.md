@@ -18,7 +18,7 @@ Upon various actions taken on a PR, this action will tag the author and reviewer
 
 ## Example usage
 
-uses: jonnyliu15/pr-reviews-action  
+uses: aloftappraisal/pr-review-notifier@v1.0  
 with:  
  `slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}`  
  `slack_channel_id: '<SLACK_CHANNEK_ID>'`  
