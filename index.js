@@ -1,6 +1,6 @@
 const github = require("@actions/github");
 const core = require("@actions/core");
-const { createSlackThread, handlePush, handleReview } = require("./utils");
+const { handleOpen, handlePush, handleReview } = require("./utils");
 
 (async () => {
   try {
@@ -8,7 +8,7 @@ const { createSlackThread, handlePush, handleReview } = require("./utils");
     switch (eventName) {
       case "pull_request": {
         if (payload.action === "opened") {
-          await createSlackThread();
+          await handleOpen();
         }
       }
       case "push": {

@@ -10,7 +10,7 @@ const octokit = github.getOctokit(githubToken);
 
 const getSlackThreadID = async () => {
   const { repository, pull_request } = github.context.payload;
-  const comments = await octokit.issues.listComments({
+  const comments = await octokit.rest.issues.listComments({
     owner: repository.owner.login,
     repo: repository.name,
     issue_number: pull_request.number,
@@ -33,36 +33,42 @@ const githubToSlackName = (github) => {
   }>`;
 };
 
-module.exports = {
-  createSlackThread: async () => {
-    console.log("creating slack thread");
-    const { pull_request, sender } = github.context.payload;
-    const reviewers = pull_request.requested_reviewers.map((reviewer) =>
-      githubToSlackName(reviewer.login)
-    );
-    if (reviewers.length === 0) {
-      return;
-    }
-    const author = githubToSlackName(sender.login);
-    const PR = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
-    const slackMessage = await slackClient.chat.postMessage({
-      channel: channelId,
-      text: `${reviewers.join(",")}, ${author} requested your review on ${PR}`,
-    });
-    if (!slackMessage.ok) {
-      throw new Error("Failed to send slack message");
-    }
+const createSlackThread = async () => {
+  const { pull_request, sender } = github.context.payload;
+  const reviewers = pull_request.requested_reviewers.map((reviewer) =>
+    githubToSlackName(reviewer.login)
+  );
+  if (reviewers.length === 0) {
+    return;
+  }
+  const author = githubToSlackName(sender.login);
+  const PR = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
+  const slackMessage = await slackClient.chat.postMessage({
+    channel: channelId,
+    text: `${reviewers.join(",")}, ${author} requested your review on ${PR}`,
+  });
+  if (!slackMessage.ok) {
+    throw new Error("Failed to send slack message");
+  }
 
-    return await octokit.issues.createComment({
-      owner: repository.owner.login,
-      repo: repository.name,
-      issue_number: number,
-      body: `SLACK_MESSAGE_ID: ${prSlackMsg.ts}`,
-    });
+  await octokit.rest.issues.createComment({
+    owner: repository.owner.login,
+    repo: repository.name,
+    issue_number: number,
+    body: `SLACK_MESSAGE_ID: ${prSlackMsg.ts}`,
+  });
+  return prSlackMsg.ts;
+};
+
+module.exports = {
+  handleOpen: async () => {
+    console.log("handling open");
+    await createSlackThread();
   },
 
   handlePush: async () => {
     console.log("handling push");
+    const { pull_request } = github.context.payload;
     let slackThreadID = await getSlackThreadID();
     if (!slackThreadID) {
       slackThreadID = await createSlackThread();
