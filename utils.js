@@ -5,7 +5,6 @@ const { WebClient } = require("@slack/web-api");
 const slackClient = new WebClient(core.getInput("slack_bot_token"));
 
 const channelId = core.getInput("slack_channel_id");
-const githubToken = core.getInput("github_token");
 
 const githubToSlackName = (github) => {
   const users = JSON.parse(core.getInput("slack_users"));
@@ -39,6 +38,7 @@ module.exports = {
     console.log("handling push");
     const { pull_request } = github.context.payload;
     if (!pull_request) {
+      console.log("no pull request");
       return;
     }
     const reviewers = pull_request.requested_reviewers.map((reviewer) =>
@@ -46,6 +46,7 @@ module.exports = {
     );
     const PR = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
     if (reviewers.length === 0) {
+      console.log("no reviewers");
       return;
     }
 
@@ -99,7 +100,7 @@ module.exports = {
         throw Error("unknown review state");
     }
 
-    await slackWebClient.chat.postMessage({
+    await slackClient.chat.postMessage({
       channel: channelId,
       text: `${author}, ${reviewer} ${baseText}`,
     });
