@@ -9,8 +9,9 @@ inputs:
     required: true
   github_token:
     description: "Personal access token with repository rights."
+    required: true
   slack_users:
-    description: "This is JSON stringified array of the users you would like to be able to notify via slack when they are requested to review a PR. The format should be [{ github_username: string, slack_id: string }]"
+    description: 'This is a JSON stringified array of the users you would like to be able to notify via slack when they are requested to review a PR. The format should be [{ "github_username": string, "slack_id": string }]'
     required: true
     default: "[]"
 runs:
