@@ -10,12 +10,15 @@ const { handleOpen, handlePush, handleReview } = require("./utils");
         if (payload.action === "opened") {
           await handleOpen();
         }
+        break;
       }
       case "push": {
         await handlePush();
+        break;
       }
       case "pull_request_review": {
         await handleReview();
+        break;
       }
       default: {
         console.log(`Event: ${eventName} not implemented, continuing.`);
