@@ -69,8 +69,8 @@ module.exports = {
     if (!pull_request) {
       return;
     }
-    const author = githubToSlackName(review.user.login);
-    const reviewer = githubToSlackName(pull_request.user.login);
+    const author = githubToSlackName(pull_request.user.login);
+    const reviewer = githubToSlackName(review.user.login);
 
     if (!reviewer) {
       throw Error(

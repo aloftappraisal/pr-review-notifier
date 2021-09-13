@@ -13,6 +13,7 @@ const { handleOpen, handlePush, handleReview } = require("./utils");
             break;
           }
           case "edited": {
+            //TODO - find a way to trigger this with pull request context
             await handlePush();
             break;
           }
