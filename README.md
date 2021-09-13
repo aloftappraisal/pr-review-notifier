@@ -25,8 +25,8 @@ Upon various actions taken on a PR, this action will tag the author and reviewer
 
 uses: jonnyliu15/pr-reviews-action
 with:
-          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+         `bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: 'C01K5D346EL'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           slack-users: '[
-            { "github_username": "jonnyliu15", "slack_id": "U022GSCCH1A" }]',
+            { "github_username": "jonnyliu15", "slack_id": "U022GSCCH1A" }]',`
