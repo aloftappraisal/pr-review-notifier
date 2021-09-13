@@ -8,6 +8,31 @@ const channelId = core.getInput("slack_channel_id");
 const githubToken = core.getInput("github_token");
 const octokit = github.getOctokit(githubToken);
 
+const getSlackThreadID = async () => {
+  const { repository, pull_request } = github.context.payload;
+  const comments = await octokit.issues.listComments({
+    owner: repository.owner.login,
+    repo: repository.name,
+    issue_number: pull_request.number,
+  });
+
+  const myComment = comments.find((comment) => {
+    comment.body.includes("SLACK_MESSAGE_ID");
+  });
+  if (!myComment) {
+    return false;
+  }
+
+  return myComment.split(": ")[1];
+};
+
+const githubToSlackName = (github) => {
+  const users = JSON.parse(core.getInput("slack_users"));
+  return `<@${
+    users.find((user) => user["github_username"] === github)["slack_id"]
+  }>`;
+};
+
 module.exports = {
   createSlackThread: async () => {
     console.log("creating slack thread");
@@ -107,30 +132,5 @@ module.exports = {
       thread_ts: slackThreadID,
       text: `${author}, ${reviewer} ${baseText}`,
     });
-  },
-
-  getSlackThreadID: async () => {
-    const { repository, pull_request } = github.context.payload;
-    const comments = await octokit.issues.listComments({
-      owner: repository.owner.login,
-      repo: repository.name,
-      issue_number: pull_request.number,
-    });
-
-    const myComment = comments.find((comment) => {
-      comment.body.includes("SLACK_MESSAGE_ID");
-    });
-    if (!myComment) {
-      return false;
-    }
-
-    return myComment.split(": ")[1];
-  },
-
-  githubToSlackName: (github) => {
-    const users = JSON.parse(core.getInput("slack_users"));
-    return `<@${
-      users.find((user) => user["github_username"] === github)["slack_id"]
-    }>`;
   },
 };
