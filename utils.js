@@ -10,6 +10,9 @@ const octokit = github.getOctokit(githubToken);
 
 const getSlackThreadID = async () => {
   const { repository, pull_request } = github.context.payload;
+  if (!pull_request) {
+    return false;
+  }
   const comments = await octokit.rest.issues.listComments({
     owner: repository.owner.login,
     repo: repository.name,
@@ -54,7 +57,7 @@ const createSlackThread = async () => {
   await octokit.rest.issues.createComment({
     owner: repository.owner.login,
     repo: repository.name,
-    issue_number: number,
+    issue_number: pull_request.number,
     body: `SLACK_MESSAGE_ID: ${prSlackMsg.ts}`,
   });
   return prSlackMsg.ts;
