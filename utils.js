@@ -82,6 +82,9 @@ module.exports = {
         `Could not map ${pull_request.user.login} to the users you provided in action.yml`
       );
     }
+    if (author.normalize() === reviewer.normalize()) {
+      return;
+    }
 
     let baseText;
     switch (review.state) {
