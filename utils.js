@@ -48,7 +48,7 @@ module.exports = {
       return;
     }
 
-    await slackWebClient.chat.postMessage({
+    await slackClient.chat.postMessage({
       channel: channelId,
       text: `Attention ${reviewers.join(", ")}, updates were made to ${PR}`,
       blocks: [
