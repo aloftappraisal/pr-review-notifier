@@ -92,7 +92,7 @@ module.exports = {
         baseText = `requested changes on your PR.`;
         break;
       case "commented":
-        baseText = "neither approved nor denied your PR, but merely commented.";
+        baseText = "commented on your PR.";
         break;
       case "approved":
         baseText = "approved your PR. Yay!";
