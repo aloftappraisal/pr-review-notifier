@@ -51,15 +51,6 @@ module.exports = {
     await slackClient.chat.postMessage({
       channel: channelId,
       text: `Attention ${reviewers.join(", ")}, updates were made to ${PR}`,
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text,
-          },
-        },
-      ],
     });
   },
 
