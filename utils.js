@@ -39,7 +39,7 @@ module.exports = {
       // author and reviewers will be included in link preview
       unfurl_links: true,
     });
-    if (!prReviewsMessage) {
+    if (!prReviewsMessage.ok) {
       throw new Error('Failed to send slack message');
     }
   },
