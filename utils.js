@@ -18,6 +18,15 @@ module.exports = {
   handleOpen: async () => {
     console.log("handling open");
     const { pull_request, sender } = github.context.payload;
+    const prReviewsMessage = await slackClient.chat.postMessage({
+      channel: prReviewsChannelId,
+      text: `<${pull_request._links.html.href}|*${pull_request.title}*>`,
+      // author and reviewers will be included in link preview
+      unfurl_links: true,
+    });
+    if (!prReviewsMessage.ok) {
+      throw new Error('Failed to send slack message');
+    }
     const reviewers = pull_request.requested_reviewers.map((reviewer) =>
       githubToSlackName(reviewer.login)
     );
@@ -32,15 +41,6 @@ module.exports = {
     });
     if (!slackMessage.ok) {
       throw new Error("Failed to send slack message");
-    }
-    const prReviewsMessage = await slackClient.chat.postMessage({
-      channel: prReviewsChannelId,
-      text: `<${pull_request._links.html.href}|*${pull_request.title}*>`,
-      // author and reviewers will be included in link preview
-      unfurl_links: true,
-    });
-    if (!prReviewsMessage.ok) {
-      throw new Error('Failed to send slack message');
     }
   },
 
