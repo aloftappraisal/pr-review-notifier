@@ -5,6 +5,7 @@ const { WebClient } = require("@slack/web-api");
 const slackClient = new WebClient(core.getInput("slack_bot_token"));
 
 const channelId = core.getInput("slack_channel_id");
+const prReviewsChannelId = 'C04B4TN6UHJ'; // #tech-prs
 
 const githubToSlackName = (github) => {
   const users = JSON.parse(core.getInput("slack_users"));
@@ -31,6 +32,15 @@ module.exports = {
     });
     if (!slackMessage.ok) {
       throw new Error("Failed to send slack message");
+    }
+    const prReviewsMessage = await slackClient.chat.postMessage({
+      channel: prReviewsChannelId,
+      text: `<${pull_request._links.html.href}|*${pull_request.title}*>`,
+      // author and reviewers will be included in link preview
+      unfurl_links: true,
+    });
+    if (!prReviewsMessage) {
+      throw new Error('Failed to send slack message');
     }
   },
 
