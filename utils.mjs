@@ -17,7 +17,7 @@ const githubToSlackName = (github) => {
 
 const deleteHtmlComments = (html) => html.replace(/<!--.*?-->/g, "");
 const markdownToMrkdwn = (markdown) =>
-  htmlToMrkdwn(deleteHtmlComments(micromark(markdown))).text;
+  htmlToMrkdwn(micromark(deleteHtmlComments(markdown))).text;
 const mrkdwnQuote = (mrkdwn) =>
   mrkdwn
     .split("\n")
