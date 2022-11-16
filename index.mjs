@@ -1,6 +1,6 @@
-const github = require("@actions/github");
-const core = require("@actions/core");
-const { handleOpen, handlePush, handleReview } = require("./utils");
+import github from "@actions/github";
+import core from "@actions/core";
+import { handleOpen, handlePush, handleReview } from "./utils.mjs";
 
 (async () => {
   try {
