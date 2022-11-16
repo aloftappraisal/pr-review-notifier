@@ -15,7 +15,9 @@ const githubToSlackName = (github) => {
   return user === undefined ? `*${github}*` : `<@${user["slack_id"]}>`;
 };
 
-const markdownToMrkdwn = (markdown) => htmlToMrkdwn(micromark(markdown)).text;
+const deleteHtmlComments = (html) => html.replace(/<!--.*?-->/g, "");
+const markdownToMrkdwn = (markdown) =>
+  htmlToMrkdwn(deleteHtmlComments(micromark(markdown))).text;
 const mrkdwnQuote = (mrkdwn) =>
   mrkdwn
     .split("\n")
