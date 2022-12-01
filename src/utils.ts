@@ -28,6 +28,7 @@ export const handleOpen = async () => {
   console.log("handling open");
   const { pull_request, sender } = context.payload;
 
+  console.log(getInput('slack_users'))
   const author = githubToSlackName(sender.login);
   const reviewers = pull_request.requested_reviewers.map((reviewer) =>
     githubToSlackName(reviewer.login)
