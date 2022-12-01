@@ -26,6 +26,7 @@ const mrkdwnQuote = (mrkdwn) =>
 
 export const handleOpen = async () => {
   console.log("handling open");
+  console.log('hey', core.getInput("slack_channel_id"))
   const { pull_request, sender } = context.payload;
 
   const author = githubToSlackName(sender.login);
