@@ -15,7 +15,6 @@ runs:
   using: "composite"
   steps:
     - run: ./run.sh
-      working-directory: $GITHUB_ACTION_PATH
       shell: bash
       env:
         SLACK_CHANNEL_ID: ${{ inputs.slack_channel_id }}
