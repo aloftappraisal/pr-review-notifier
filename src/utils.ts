@@ -1,16 +1,16 @@
-import { getInput } from "@actions/core";
+import * as core from "@actions/core";
 import { context } from "@actions/github";
 import { micromark } from "micromark";
 import htmlToMrkdwn from "html-to-mrkdwn";
 import { WebClient } from "@slack/web-api";
 
-const slackClient = new WebClient(getInput("slack_bot_token"));
+const slackClient = new WebClient(core.getInput("slack_bot_token"));
 
-const channelId = getInput("slack_channel_id");
+const channelId = core.getInput("slack_channel_id");
 const prReviewsChannelId = "C04B4TN6UHJ"; // #tech-prs
 
 const githubToSlackName = (github) => {
-  const users = JSON.parse(getInput("slack_users"));
+  const users = JSON.parse(core.getInput("slack_users"));
   const user = users.find((user) => user["github_username"] === github);
   return user === undefined ? `*${github}*` : `<@${user["slack_id"]}>`;
 };
@@ -28,7 +28,6 @@ export const handleOpen = async () => {
   console.log("handling open");
   const { pull_request, sender } = context.payload;
 
-  console.log(getInput('slack_users'))
   const author = githubToSlackName(sender.login);
   const reviewers = pull_request.requested_reviewers.map((reviewer) =>
     githubToSlackName(reviewer.login)
