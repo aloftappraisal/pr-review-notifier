@@ -1,5 +1,6 @@
 #!/bin/sh
 
+ls
 echo Installing...
 npm install
 echo Building...
