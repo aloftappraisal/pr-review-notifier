@@ -14,5 +14,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: cd $GITHUB_ACTION_PATH ; ./run.sh
+    - run: ./run.sh
+      working-directory: $GITHUB_ACTION_PATH
       shell: bash
+      env:
+        SLACK_CHANNEL_ID: ${{ inputs.slack_channel_id }}
+        SLACK_BOT_TOKEN: ${{ inputs.slack_bot_token }}
+        SLACK_USERS: ${{ inputs.slack_users }}
+

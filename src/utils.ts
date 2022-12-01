@@ -1,16 +1,12 @@
-import * as core from "@actions/core";
 import { context } from "@actions/github";
 import { micromark } from "micromark";
 import htmlToMrkdwn from "html-to-mrkdwn";
 import { WebClient } from "@slack/web-api";
+import { Handler } from "./types.js";
 
-const slackClient = new WebClient(core.getInput("slack_bot_token"));
-
-const channelId = core.getInput("slack_channel_id");
 const prReviewsChannelId = "C04B4TN6UHJ"; // #tech-prs
 
-const githubToSlackName = (github) => {
-  const users = JSON.parse(core.getInput("slack_users"));
+const githubToSlackName = (users, github: string) => {
   const user = users.find((user) => user["github_username"] === github);
   return user === undefined ? `*${github}*` : `<@${user["slack_id"]}>`;
 };
@@ -24,14 +20,13 @@ const mrkdwnQuote = (mrkdwn) =>
     .map((s) => `>${s}`)
     .join("\n");
 
-export const handleOpen = async () => {
+export const handleOpen: Handler = async (client, users, channelId) => {
   console.log("handling open");
-  console.log('hey', core.getInput("slack_channel_id"))
   const { pull_request, sender } = context.payload;
 
-  const author = githubToSlackName(sender.login);
+  const author = githubToSlackName(users, sender.login);
   const reviewers = pull_request.requested_reviewers.map((reviewer) =>
-    githubToSlackName(reviewer.login)
+    githubToSlackName(users, reviewer.login)
   );
   const prTitleLink = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
 
@@ -41,67 +36,47 @@ export const handleOpen = async () => {
   const reviewersSection =
     reviewers.length > 0 ? `\n*Reviewers:* ${reviewers.join(", ")}` : "";
 
-  const prReviewsMessage = await slackClient.chat.postMessage({
+  const prReviewsMessage = await client.chat.postMessage({
     channel: prReviewsChannelId,
     text: `${author} opened ${prTitleLink}${reviewersSection}${bodySection}`,
     unfurl_links: false,
   });
   if (!prReviewsMessage.ok) {
-    throw new Error("Failed to send slack message");
-  }
-
-  if (reviewers.length !== 0) {
-    const slackMessage = await slackClient.chat.postMessage({
-      channel: channelId,
-      text: `${reviewers.join(
-        ","
-      )}, ${author} requested your review on ${prTitleLink}`,
-    });
-    if (!slackMessage.ok) {
-      throw new Error("Failed to send slack message");
-    }
+    throw new Error();
   }
 };
 
-export const handlePush = async () => {
+export const handlePush: Handler = async (client, users, channelId) => {
   console.log("handling push");
   const { pull_request } = context.payload;
   if (!pull_request) {
-    return;
+    throw new Error()
   }
   const reviewers = pull_request.requested_reviewers.map((reviewer) =>
-    githubToSlackName(reviewer.login)
+    githubToSlackName(users, reviewer.login)
   );
   const PR = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
   if (reviewers.length === 0) {
-    return;
+    return
   }
 
-  await slackClient.chat.postMessage({
+  const message = await client.chat.postMessage({
     channel: channelId,
     text: `Attention ${reviewers.join(", ")}, updates were made to ${PR}`,
   });
+  if(!message.ok) {
+    throw new Error()
+  }
 };
 
-export const handleReview = async () => {
+export const handleReview: Handler = async (client, users, channelId) => {
   console.log("handling review");
   const { pull_request, review } = context.payload;
   if (!pull_request) {
-    return;
+    throw new Error();
   }
-  const author = githubToSlackName(pull_request.user.login);
-  const reviewer = githubToSlackName(review.user.login);
-
-  if (!reviewer) {
-    throw Error(
-      `Could not map ${review.user.login} to the users you provided in action.yml`
-    );
-  }
-  if (!author) {
-    throw Error(
-      `Could not map ${pull_request.user.login} to the users you provided in action.yml`
-    );
-  }
+  const author = githubToSlackName(users, pull_request.user.login);
+  const reviewer = githubToSlackName(users, review.user.login);
   if (author.normalize() === reviewer.normalize()) {
     return;
   }
@@ -121,8 +96,11 @@ export const handleReview = async () => {
       throw Error("unknown review state");
   }
 
-  await slackClient.chat.postMessage({
+  const message = await client.chat.postMessage({
     channel: channelId,
     text: `${author}, ${reviewer} ${baseText}`,
   });
+  if (!message.ok) {
+    throw new Error();
+  }
 };
