@@ -12,5 +12,7 @@ inputs:
     required: true
     default: "[]"
 runs:
-  using: "node12"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - run: $GITHUB_ACTION_PATH/run.sh
+      shell: bash

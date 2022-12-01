@@ -10,7 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { setFailed } from "@actions/core";
 import { context } from "@actions/github";
 import { handleOpen, handlePush, handleReview } from "./utils.js";
-(() => __awaiter(void 0, void 0, void 0, function* () {
+((opts) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(opts);
     try {
         const { eventName, payload } = context;
         switch (eventName) {
