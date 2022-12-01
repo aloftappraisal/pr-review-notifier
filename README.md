@@ -26,4 +26,3 @@ with:
 
 ## Note
 
-`node_modules` is not ignored because Github needs to build the repo.
