@@ -15,6 +15,7 @@ runs:
   using: "composite"
   steps:
     - run: echo $GITHUB_ACTION_PATH
+      shell: bash
     - run: ./run.sh
       working-directory: $GITHUB_ACTION_PATH
       shell: bash
