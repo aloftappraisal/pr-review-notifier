@@ -2,11 +2,9 @@
   "name": "pr-reviews-action",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "index.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --build",
-    "clean": "tsc --build --clean"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -24,8 +22,6 @@
     "@actions/github": "^5.0.0",
     "@slack/web-api": "^6.4.0",
     "html-to-mrkdwn": "^3.0.0",
-    "micromark": "^3.1.0",
-    "typescript": "^4.9.3"
-  },
-  "type": "module"
+    "micromark": "^3.1.0"
+  }
 }
