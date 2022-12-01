@@ -1,2 +1,3 @@
 #comment out node_modules b/c Github needs to build the action, node_modules included.
-#node_modules/
+node_modules
+package-lock.json
