@@ -4,10 +4,15 @@
       "noEmitOnError": true,
       "removeComments": false,
       "sourceMap": true,
-      "target": "es5",
-      "outDir": "dist"
+      "module": "es6",
+    "target": "es6",
+    "lib": ["ESNext"],
+    "noEmit": false,
+    "esModuleInterop": true,
+      "outDir": "dist",
+      "moduleResolution": "node16",
     },
     "include": [
       "src/*"
-    ]
+    ],
   }

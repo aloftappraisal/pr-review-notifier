@@ -2,7 +2,7 @@
   "name": "pr-reviews-action",
   "version": "1.0.0",
   "description": "",
-  "main": "index.mjs",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --build",
@@ -26,5 +26,6 @@
     "html-to-mrkdwn": "^3.0.0",
     "micromark": "^3.1.0",
     "typescript": "^4.9.3"
-  }
+  },
+  "type": "module"
 }

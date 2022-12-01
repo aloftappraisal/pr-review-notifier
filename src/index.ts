@@ -1,6 +1,6 @@
 import { setFailed } from "@actions/core";
 import { context } from "@actions/github";
-import { handleOpen, handlePush, handleReview } from "./utils";
+import { handleOpen, handlePush, handleReview } from "./utils.js";
 
 (async () => {
   try {
