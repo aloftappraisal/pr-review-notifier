@@ -14,7 +14,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: ./run.sh
+    - run: run.sh
       shell: bash
       env:
         SLACK_CHANNEL_ID: ${{ inputs.slack_channel_id }}
