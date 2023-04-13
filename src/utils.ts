@@ -20,6 +20,9 @@ const mrkdwnQuote = (mrkdwn) =>
     .map((s) => `>${s}`)
     .join("\n");
 
+const escapeMrkdwn = (text: string): string =>
+  text.replaceAll("\\", "\\\\").replaceAll(">", "\\>").replaceAll("*", "\\*");
+
 export const handleOpen: Handler = async (client, users, channelId) => {
   console.log("handling open");
   const { pull_request, sender } = context.payload;
@@ -28,7 +31,8 @@ export const handleOpen: Handler = async (client, users, channelId) => {
   const reviewers = pull_request.requested_reviewers.map((reviewer) =>
     githubToSlackName(users, reviewer.login)
   );
-  const prTitleLink = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
+  const prTitleMrkdwn = escapeMrkdwn(pull_request.title);
+  const prTitleLink = `<${pull_request._links.html.href}|*${prTitleMrkdwn}*>`;
 
   const bodySection = pull_request.body
     ? `\n${mrkdwnQuote(markdownToMrkdwn(pull_request.body))}`
@@ -50,22 +54,22 @@ export const handlePush: Handler = async (client, users, channelId) => {
   console.log("handling push");
   const { pull_request } = context.payload;
   if (!pull_request) {
-    throw new Error()
+    throw new Error();
   }
   const reviewers = pull_request.requested_reviewers.map((reviewer) =>
     githubToSlackName(users, reviewer.login)
   );
   const PR = `<${pull_request._links.html.href}|*${pull_request.title}*>`;
   if (reviewers.length === 0) {
-    return
+    return;
   }
 
   const message = await client.chat.postMessage({
     channel: channelId,
     text: `Attention ${reviewers.join(", ")}, updates were made to ${PR}`,
   });
-  if(!message.ok) {
-    throw new Error()
+  if (!message.ok) {
+    throw new Error();
   }
 };
 
