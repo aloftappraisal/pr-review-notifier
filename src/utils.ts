@@ -21,7 +21,7 @@ const mrkdwnQuote = (mrkdwn) =>
     .join("\n");
 
 const escapeMrkdwn = (text: string): string =>
-  text.replaceAll("\\", "\\\\").replaceAll(">", "\\>").replaceAll("*", "\\*");
+  text.replaceAll("&", "&amp;").replaceAll(">", "&gt;").replaceAll("<", "&lt;");
 
 export const handleOpen: Handler = async (client, users, channelId) => {
   console.log("handling open");
@@ -32,7 +32,7 @@ export const handleOpen: Handler = async (client, users, channelId) => {
     githubToSlackName(users, reviewer.login)
   );
   const prTitleMrkdwn = escapeMrkdwn(pull_request.title);
-  const prTitleLink = `<${pull_request._links.html.href}|*${prTitleMrkdwn}*>`;
+  const prTitleLink = `*<${pull_request._links.html.href}|${prTitleMrkdwn}>*`;
 
   const bodySection = pull_request.body
     ? `\n${mrkdwnQuote(markdownToMrkdwn(pull_request.body))}`
